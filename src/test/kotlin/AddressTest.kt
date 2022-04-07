@@ -23,9 +23,9 @@ internal class AddressTest {
 
         val listOfAddresses = parseAddresses(stringOfAddresses)
 
-        val address0 :Address = Address(189765, "Moscow", "Korablestroiteley", 3)
-        val address1 :Address = Address(123111, "SPB", "Bolshoy", 11)
-        val address2 :Address = Address(189765, "Moscow", "Leninsky", 2)
+        val address0 = Address(189765, "Moscow", "Korablestroiteley", 3)
+        val address1 = Address(123111, "SPB", "Bolshoy", 11)
+        val address2 = Address(189765, "Moscow", "Leninsky", 2)
 
         assertEquals(address0, listOfAddresses[0])
         assertEquals(address1, listOfAddresses[1])
