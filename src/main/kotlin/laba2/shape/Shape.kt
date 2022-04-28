@@ -2,9 +2,15 @@ package laba2.shape
 
 import kotlin.math.*
 
-data class RgbColor(val red: Float, val green: Float, val blue: Float, val alpha: Float)
+data class RgbColor(val red: Float, val green: Float, val blue: Float, val alpha: Float) {
+    init {
+        if (!((red in 0f..255f) && (green in 0f..255f) && (blue in 0f..255f) && (alpha in 0f..255f))) {
+            throw IllegalArgumentException("Incorrect color")
+        }
+    }
+}
 
-enum class Color(rgbColor: RgbColor) {
+enum class Color(val rgbColor: RgbColor) {
     RED(RgbColor(255f, 0f, 0f, 1f)),
     GREEN(RgbColor(0f, 255f, 0f, 1f)),
     BLUE(RgbColor(0f, 0f, 255f, 1f)),
@@ -68,9 +74,11 @@ data class Square(val side: Double, override val borderColor: Color, override va
             throw IllegalArgumentException("Negative side input: $side")
         }
     }
+
     override fun calcArea(): Double {
         return side * side
     }
+
     override fun toString(): String {
         return "Square with side $side"
     }
