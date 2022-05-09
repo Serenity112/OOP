@@ -8,7 +8,9 @@ object GameTextures {
         val MineTex: Image,
         val FieldTex: Image,
         val MarkTex: Image,
-        val EmptyTex: Image,
+        val EmptyWaterTex: Image,
+        val crossTex: Image,
+
         val logoTex: Image,
         val arrowLeft: Image,
         val arrowRight: Image,
@@ -24,7 +26,8 @@ object GameTextures {
             ImageIO.read(javaClass.getResource("/images/mine.png")),
             ImageIO.read(javaClass.getResource("/images/field.png")),
             ImageIO.read(javaClass.getResource("/images/flag.png")),
-            ImageIO.read(javaClass.getResource("/images/empty.png")),
+            ImageIO.read(javaClass.getResource("/images/water.png")),
+            ImageIO.read(javaClass.getResource("/images/cross.png")),
 
             ImageIO.read(javaClass.getResource("/images/logo.png")),
             ImageIO.read(javaClass.getResource("/images/arrowleft.png")),
