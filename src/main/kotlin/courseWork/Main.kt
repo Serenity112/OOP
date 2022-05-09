@@ -1,6 +1,7 @@
 package courseWork
 
-import courseWork.view.JSMinesweeperView
+import courseWork.gamemenu.view.MineSweeperBoard
+import courseWork.mainmenu.view.MainMenuPanel
 
 fun main() {
     //val model = Model()
@@ -9,7 +10,7 @@ fun main() {
 
    // controller.startGame()
 
-
-    val mineSwepper = JSMinesweeperView()
-    mineSwepper.isVisible = true
+    //val mineSweeper = MainMenuPanel()
+    val mineSweeper = MineSweeperBoard(9, 9, 16)
+    mineSweeper.isVisible = true
 }

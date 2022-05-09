@@ -1,9 +1,9 @@
-package courseWork.model
+package courseWork.gamemenu.model
 
-import courseWork.model.FieldData.*
-import courseWork.model.State.*
-import courseWork.model.Difficulty.*
-import courseWork.model.ClickMode.*
+import courseWork.gamemenu.model.FieldData.*
+import courseWork.gamemenu.model.State.*
+import courseWork.gamemenu.model.Difficulty.*
+import courseWork.gamemenu.model.ClickMode.*
 
 import java.io.File
 
@@ -68,8 +68,10 @@ class Model {
         private set
 
     private var movesLeft = 0
-    private var clickMode = REVEALING
 
+    var clickMode = REVEALING
+        private set
+    
     private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
 
     var state = LOSS
@@ -215,7 +217,7 @@ class Model {
         state = INGAME
     }
 
-    fun SwitchMode() {
+    fun switchClickMode() {
         println("Mode switched")
         clickMode = if (clickMode == MARKING) REVEALING else MARKING
     }

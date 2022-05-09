@@ -1,9 +1,8 @@
-package courseWork.controller
+package courseWork.gamemenu.controller
 
-import courseWork.model.Model
-import courseWork.model.State.*
-import courseWork.model.GAME_FINISHED
-import courseWork.view.*
+import courseWork.gamemenu.model.Model
+import courseWork.gamemenu.model.State.*
+import courseWork.gamemenu.model.GAME_FINISHED
 
 class Controller(private val model: Model) {
 
