@@ -1,11 +1,14 @@
 package courseWork.gamemenu.view
 
 import courseWork.GameTextures
-import courseWork.GameTextures.textures
 import courseWork.gamemenu.model.*
 import courseWork.gamemenu.view.MineSweeperBoard.Colors.*
 import java.awt.*
 import javax.swing.*
+import javax.swing.border.CompoundBorder
+import javax.swing.border.EmptyBorder
+import javax.swing.border.EtchedBorder
+
 
 private const val GAME_WIDTH = 700
 private const val GAME_HEIGHT = 1000
@@ -17,6 +20,7 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
 
     enum class Colors(val hex: Int) {
         GREY(0x878a9a),
+        LIGHT_GREY(0xbfbfbf),
         BLUE(0x3366ff),
         GREEN(0x33cc33),
         RED(0xff0000),
@@ -53,22 +57,26 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
 
         if (cols > rows) {
             panelWidth = BOARD_PANEL_SIZE
-            cellSize = BOARD_PANEL_SIZE/cols
-            panelHeight = cellSize*rows
+            cellSize = BOARD_PANEL_SIZE / cols
+            panelHeight = cellSize * rows
         } else {
             panelHeight = BOARD_PANEL_SIZE
-            cellSize = BOARD_PANEL_SIZE/rows
-            panelWidth = cellSize*cols
+            cellSize = BOARD_PANEL_SIZE / rows
+            panelWidth = cellSize * cols
         }
 
+        FieldIcons.Mine.img =
+            ImageIcon(GameTextures.textures.MineTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
+        FieldIcons.Field.img =
+            ImageIcon(GameTextures.textures.FieldTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
+        FieldIcons.Mark.img =
+            ImageIcon(GameTextures.textures.MarkTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
+        FieldIcons.Water.img =
+            ImageIcon(GameTextures.textures.EmptyWaterTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
+        FieldIcons.Cross.img =
+            ImageIcon(GameTextures.textures.crossTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
+
         rootPane.contentPane = createMainPanel()
-
-        FieldIcons.Mine.img = ImageIcon(GameTextures.textures.MineTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
-        FieldIcons.Field.img = ImageIcon(GameTextures.textures.FieldTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
-        FieldIcons.Mark.img = ImageIcon(GameTextures.textures.MarkTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
-        FieldIcons.Water.img = ImageIcon(GameTextures.textures.EmptyWaterTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
-        FieldIcons.Cross.img = ImageIcon(GameTextures.textures.crossTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
-
 
         resubscribe()
     }
@@ -101,6 +109,8 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
                 }
             }
 
+            background = Color.GRAY
+
             preferredSize = Dimension(75, 75)
             minimumSize = Dimension(75, 75)
             maximumSize = Dimension(75, 75)
@@ -110,9 +120,25 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
     }
 
     private fun createRestartButton(): JButton {
-        val restartButton = JButton("RES").apply {
+        val restartButton = JButton().apply {
+            icon = ImageIcon(textures.restart.getScaledInstance(60, 60, Image.SCALE_SMOOTH))
+            background = Color.GRAY
+
             addActionListener {
-                restartGame()
+                if (gameModel.state == State.INGAME) {
+                    val dialogOption = JOptionPane.showConfirmDialog(
+                        this,
+                        "Game not finished, are you sure?",
+                        "Restart",
+                        JOptionPane.OK_CANCEL_OPTION
+                    )
+
+                    if (dialogOption == JOptionPane.OK_OPTION) {
+                        resubscribe()
+                    }
+                } else {
+                    resubscribe()
+                }
             }
             preferredSize = Dimension(75, 75)
             minimumSize = Dimension(75, 75)
@@ -123,7 +149,7 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
     }
 
     private fun restartGame() {
-
+        resubscribe()
     }
 
 
@@ -145,8 +171,6 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
     private fun resubscribe() {
         gameModel.removeModelChangeListener(this)
         gameModel = Model(rows, cols, mines)
-        gameModel.placeMines("mines.txt")
-
         gameModel.addModelChangeListener(this)
         updateGameUI()
     }
@@ -163,8 +187,19 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
                             icon = FieldIcons.Mine.img
                         }
                     }
-                    FieldData.FIELD -> button.icon = FieldIcons.Field.img
-                    FieldData.MARK -> button.icon = FieldIcons.Mark.img
+
+                    FieldData.FIELD -> {
+                        button.icon = FieldIcons.Field.img
+                        val label = (button.getComponent(0) as JLabel).apply {
+                           // icon = FieldIcons.Cross.img
+                        }
+                    }
+                    FieldData.MARK -> {
+                        button.apply {
+                            background = Color(LIGHT_GREY.hex)
+                            icon = FieldIcons.Mark.img
+                        }
+                    }
                     FieldData.WATER -> {
                         val water: WaterField = cell as WaterField
 
@@ -197,7 +232,7 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
                     val button = buttons[it.first][it.second]
                     button.apply {
                         //val label = JLabel()
-                        background = Color(GREEN.hex)
+                        background = Color.GRAY
                         icon = FieldIcons.Mine.img
                     }
                 }
@@ -214,9 +249,10 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
 
                                 val label = button.getComponent(0) as JLabel
                                 label.apply {
-                                    icon = FieldIcons.Cross.img
                                     // FIX
-                                    BorderLayout.CENTER
+                                    icon = FieldIcons.Cross.img
+
+                                    //BorderLayout.CENTER
 
                                 }
                             }
@@ -234,8 +270,8 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
         val boardPanel = JPanel().apply {
 
             preferredSize = Dimension(panelWidth, panelHeight)
-            maximumSize =  Dimension(panelWidth, panelHeight)
-            minimumSize =  Dimension(panelWidth, panelHeight)
+            maximumSize = Dimension(panelWidth, panelHeight)
+            minimumSize = Dimension(panelWidth, panelHeight)
             background = Color(GREY.hex)
             // add constructor
             layout = GridLayout(rows, cols, 0, 0)
@@ -247,27 +283,21 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
             val buttonsRow = mutableListOf<JButton>()
             for (j in 0 until cols) {
                 val cellButton = JButton().apply {
-                    //layout = BorderLayout()
-                    icon = img
+                    icon = FieldIcons.Field.img
+
                     val depthLabel = JLabel().apply {
-                        alignmentX = CENTER_ALIGNMENT
-                        updateFont(this, 40F)
+                        updateFont(this, cellSize / 1.5F)
                     }
 
-                    //layout = FlowLayout()
+                    add(depthLabel)
 
-                    add(depthLabel, BorderLayout.CENTER)
-
-                    //val jLabel = JLabel()
                     addActionListener {
                         gameModel.doMove(i, j)
                     }
-                    // layout = OverlayLayout(this)
-                    // add(jLabel)
+
                     preferredSize = Dimension(cellSize, cellSize)
                     maximumSize = Dimension(cellSize, cellSize)
                     minimumSize = Dimension(cellSize, cellSize)
-
                 }
 
                 buttonsRow.add(cellButton)

@@ -73,11 +73,13 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
         require(cols in 1..99) { "Wrong cols number" }
         require(mines in 1..rows * cols) { "Wrong mines number" }
 
-        movesLeft = rows * cols
+        movesLeft = rows * cols - mines
         state = INGAME
 
         _gameBoard = MutableList(rows) { MutableList(cols) { Field(FIELD) } }
 
+
+        placeMines("mines.txt")
         // Init when mines placed
         //_dataBoard = MutableList(rows) { MutableList(cols) { Field(WATER) } }
     }
@@ -186,7 +188,6 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
     fun doMove(row: Int, col: Int) {
         require(isValid(row, col)) { "Move was out of board" }
 
-
         require(state == INGAME) { "Game ended!" }
 
 
@@ -197,7 +198,7 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
         } else {
             when (clickMode) {
                 REVEALING -> {
-                    if ((movesLeft == rows * cols) && (_dataBoard[row][col].field == MINE)) {
+                    if ((movesLeft == rows * cols - mines) && (_dataBoard[row][col].field == MINE)) {
                         replaceMine(row, col)
                         revealField(row, col)
                     } else if (gameField == FIELD) {
@@ -210,6 +211,10 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
             }
         }
 
+
+        if (movesLeft == 0) {
+            state = WIN
+        }
 
         notifyListeners()
     }
@@ -252,7 +257,7 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
         val marks = countAdjacentObjects(_gameBoard, row, col, MARK)
 
         println("Marks = " + marks)
-        if (marks == (_gameBoard[row][col] as WaterField).depth) {
+        if (marks >= (_gameBoard[row][col] as WaterField).depth) {
             println("Reveal by marks")
             revealAdjacentFields(row, col)
         }
@@ -285,9 +290,9 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
 
         if (field == MARK) {
             _gameBoard[row][col].field = FIELD
-            movesLeft++
+            //movesLeft++
         } else if (field == FIELD) {
-            movesLeft--
+            //movesLeft--
             _gameBoard[row][col].field = MARK
         }
     }

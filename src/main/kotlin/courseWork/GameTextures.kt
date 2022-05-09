@@ -11,6 +11,7 @@ object GameTextures {
         val EmptyWaterTex: Image,
         val crossTex: Image,
 
+        val restart: Image,
         val logoTex: Image,
         val arrowLeft: Image,
         val arrowRight: Image,
@@ -29,6 +30,7 @@ object GameTextures {
             ImageIO.read(javaClass.getResource("/images/water.png")),
             ImageIO.read(javaClass.getResource("/images/cross.png")),
 
+            ImageIO.read(javaClass.getResource("/images/restart.png")),
             ImageIO.read(javaClass.getResource("/images/logo.png")),
             ImageIO.read(javaClass.getResource("/images/arrowleft.png")),
             ImageIO.read(javaClass.getResource("/images/arrowright.png")),
