@@ -11,6 +11,6 @@ fun main() {
    // controller.startGame()
 
     //val mineSweeper = MainMenuPanel()
-    val mineSweeper = MineSweeperBoard(9, 9, 16)
+    val mineSweeper = MineSweeperBoard(11, 9, 16)
     mineSweeper.isVisible = true
 }

@@ -2,7 +2,6 @@ package courseWork.gamemenu.model
 
 import courseWork.gamemenu.model.FieldData.*
 import courseWork.gamemenu.model.State.*
-import courseWork.gamemenu.model.Difficulty.*
 import courseWork.gamemenu.model.ClickMode.*
 
 import java.io.File
@@ -21,19 +20,15 @@ enum class ClickMode {
 
 enum class FieldData {
     MINE,
-    WATER,
+    FIELD, // Only undecided fields
     MARK,
-    EMPTY,
+    WATER, // Empty water or field with depth
 }
-
-
 
 
 open class Field(var field: FieldData)
 
 class WaterField(var depth: Int) : Field(WATER)
-
-
 
 
 enum class State(val textValue: String) {
@@ -49,33 +44,43 @@ interface ModelChangeListener {
 }
 
 
-class Model {
+class Model(private val rows: Int, private val cols: Int, private val mines: Int) {
     private var _dataBoard: MutableList<MutableList<Field>> = MutableList(0) { MutableList(0) { WaterField(0) } }
     val dataBoard: List<List<Field>>
         get() = _dataBoard
 
-    private var _gameBoard: MutableList<MutableList<Field>> = MutableList(0) { MutableList(0) { Field(EMPTY) } }
+    private var _gameBoard: MutableList<MutableList<Field>>
     val gameBoard: List<List<Field>>
         get() = _gameBoard
 
-    private var minesPositions: MutableList<Pair<Int, Int>> = MutableList(0) { Pair(0, 0) }
+    private var _minesPositions: MutableList<Pair<Int, Int>> = MutableList(0) { Pair(0, 0) }
+    val minesPositions: List<Pair<Int, Int>>
+        get() = _minesPositions
 
-    private var minesCount = 0
-
-    var sizeRows = 0
-        private set
-    var sizeCols = 0
-        private set
 
     private var movesLeft = 0
 
     var clickMode = REVEALING
         private set
-    
+
     private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
 
     var state = LOSS
         private set
+
+    init {
+        require(rows in 1..99) { "Wrong rows number" }
+        require(cols in 1..99) { "Wrong cols number" }
+        require(mines in 1..rows * cols) { "Wrong mines number" }
+
+        movesLeft = rows * cols
+        state = INGAME
+
+        _gameBoard = MutableList(rows) { MutableList(cols) { Field(FIELD) } }
+
+        // Init when mines placed
+        //_dataBoard = MutableList(rows) { MutableList(cols) { Field(WATER) } }
+    }
 
     fun addModelChangeListener(listener: ModelChangeListener) {
         listeners.add(listener)
@@ -91,10 +96,7 @@ class Model {
 
 
     private fun isValid(row: Int, col: Int): Boolean {
-        println("Check valid for:")
-        println(row)
-        println(col)
-        return ((row in 0 until sizeRows) && (col in 0 until sizeCols))
+        return ((row in 0 until rows) && (col in 0 until cols))
     }
 
     fun printGameBoard() {
@@ -105,7 +107,7 @@ class Model {
                     MARK -> res += "M"
                     MINE -> res += "*"
                     WATER -> res += (it as WaterField).depth
-                    EMPTY -> res += "-"
+                    FIELD -> res += "-"
                 }
             }
             res += '\n'
@@ -117,8 +119,8 @@ class Model {
     fun printDataBoard() {
         var res: String = ""
 
-        for (i in 0 until sizeRows) {
-            for (j in 0 until sizeCols) {
+        for (i in 0 until rows) {
+            for (j in 0 until cols) {
                 if (_dataBoard[i][j].field == MINE) {
                     print("*")
                 } else {
@@ -130,92 +132,51 @@ class Model {
     }
 
     fun placeMines(file: String) {
+        val i = 0
+        val j = 0
+
         val file = File(file).forEachLine { it ->
             val line: MutableList<Field> = mutableListOf()
 
             it.forEach {
 
-                val currentField = when (it) {
-                    '*' -> Field(MINE)
-                    '-' -> WaterField(0)
-                    else -> WaterField(0)
+                when (it) {
+                    '*' -> {
+                        _minesPositions.add(Pair(_dataBoard.size, line.size))
+
+                        println(_dataBoard.size.toString() + " " +  line.size.toString())
+
+                        line.add(Field(MINE))
+
+                    }
+                    '-' -> line.add( WaterField(0))
+                    else -> line.add( WaterField(0))
                 }
 
-                line.add(currentField)
+
             }
+            // Искуссвенная инициализация))))
             _dataBoard.add(line)
         }
-        sizeRows = 9
-        sizeCols = 9
-        movesLeft = sizeRows * sizeCols
-        state = INGAME
 
-        _gameBoard = MutableList(sizeRows) { MutableList(sizeCols) { Field(EMPTY) } }
+
     }
 
     fun placeMines() {
         var i: Int = 0
 
-        while (i < minesCount) {
-            val x = (0 until sizeRows).random()
-            val y = (0 until sizeCols).random()
+        while (i < mines) {
+            val y = (0 until rows).random()
+            val x = (0 until cols).random()
 
-            if (_dataBoard[x][y].field != MINE) {
-                _dataBoard[x][y].field = MINE
-                minesPositions.add(Pair(x, y))
+            if (_dataBoard[y][x].field != MINE) {
+                _dataBoard[y][x].field = MINE
+                _minesPositions.add(Pair(y, x))
                 i++
             }
         }
     }
 
-    fun chooseDifficultyLevel() {
-        println("Choose difficulty:")
-
-        var result = readln().toInt()
-
-        when (result) {
-            0 -> {
-                initializeSizes(EASY)
-            }
-            1 -> {
-                initializeSizes(MEDIUM)
-            }
-            2 -> {
-                initializeSizes(HARD)
-            }
-            else -> {
-                initializeSizes(EASY)
-            }
-        }
-    }
-
-    private fun initializeSizes(difficulty: Difficulty) {
-        when (difficulty) {
-            EASY -> {
-                sizeRows = 9
-                sizeCols = 9
-                minesCount = 10
-            }
-            MEDIUM -> {
-                sizeRows = 16
-                sizeCols = 16
-                minesCount = 40
-            }
-            HARD -> {
-                sizeRows = 24
-                sizeCols = 24
-                minesCount = 99
-            }
-        }
-
-        movesLeft = sizeRows * sizeCols
-    }
-
-    fun initializeBoard() {
-        _dataBoard = MutableList(sizeRows) { MutableList(sizeCols) { Field(WATER) } }
-        _gameBoard = MutableList(sizeRows) { MutableList(sizeCols) { Field(EMPTY) } }
-        state = INGAME
-    }
 
     fun switchClickMode() {
         println("Mode switched")
@@ -224,28 +185,38 @@ class Model {
 
     fun doMove(row: Int, col: Int) {
         require(isValid(row, col)) { "Move was out of board" }
+
+
         require(state == INGAME) { "Game ended!" }
 
-        if (movesLeft == sizeCols * sizeRows) {
-            if (_dataBoard[row][col].field == MINE) {
-                replaceMine(row, col)
+
+        val gameField = _gameBoard[row][col].field
+
+        if (gameField == WATER && (_gameBoard[row][col] as WaterField).depth != 0) {
+            autoRevealAdjacentFields(row, col)
+        } else {
+            when (clickMode) {
+                REVEALING -> {
+                    if ((movesLeft == rows * cols) && (_dataBoard[row][col].field == MINE)) {
+                        replaceMine(row, col)
+                        revealField(row, col)
+                    } else if (gameField == FIELD) {
+                        revealField(row, col)
+                    }
+                }
+                MARKING -> {
+                    markField(row, col)
+                }
             }
         }
 
-
-        //Если поле уже было открыто, игра попробует провести авто-раскрытие полей вокруг
-        if (_gameBoard[row][col].field == WATER) {
-            autoRevealAdjacentFields(row, col)
-        } else {
-            revealField(row, col)
-        }
 
         notifyListeners()
     }
 
     private fun replaceMine(row: Int, col: Int) {
-        for (i in 0 until sizeRows) {
-            for (j in 0 until sizeCols) {
+        for (i in 0 until rows) {
+            for (j in 0 until cols) {
                 if (_dataBoard[i][j].field == WATER) {
                     _dataBoard[i][j].field = MINE
                     _dataBoard[row][col].field = WATER
@@ -255,12 +226,17 @@ class Model {
         }
     }
 
-    private fun countAdjacentObjects(board : MutableList<MutableList<Field>>, row: Int, col: Int, field: FieldData): Int {
+    private fun countAdjacentObjects(
+        board: MutableList<MutableList<Field>>,
+        row: Int,
+        col: Int,
+        field: FieldData
+    ): Int {
         var count: Int = 0
 
-        for(i in -1 .. 1) {
-            for(j in -1 .. 1) {
-                if (isValid(row+i, col+j)) {
+        for (i in -1..1) {
+            for (j in -1..1) {
+                if (isValid(row + i, col + j)) {
                     if (board[row + i][col + j].field == field) {
                         count++
                     }
@@ -284,7 +260,6 @@ class Model {
 
 
     private fun revealAdjacentFields(row: Int, col: Int) {
-        // Так все положения соседних клеток:
         //              N.W   N   N.E
         //				   \  |  /
         //					\ | /
@@ -292,66 +267,64 @@ class Model {
         //					/ | \
         //				   /  |  \
         //				S.W   S   S.E
-
-        for(i in -1 .. 1) {
-            for(j in -1 .. 1) {
-                if (isValid(row+i, col+j)) {
+        for (i in -1..1) {
+            for (j in -1..1) {
+                // Check !((i==0) && (j==0)) because we don't want to reveal current field, only adjacent
+                if (isValid(row + i, col + j) && !((i==0) && (j==0))) {
+                    if(_gameBoard[row + i][col + j].field != MARK)
                     revealField(row + i, col + j)
                 }
             }
         }
     }
-    // Количество меток совпадает с количеством мин.
+// Количество меток совпадает с количеством мин.
+
+
+    private fun markField(row: Int, col: Int) {
+        val field = _gameBoard[row][col].field
+
+        if (field == MARK) {
+            _gameBoard[row][col].field = FIELD
+            movesLeft++
+        } else if (field == FIELD) {
+            movesLeft--
+            _gameBoard[row][col].field = MARK
+        }
+    }
 
     private fun revealField(row: Int, col: Int) {
         // Мы нажали на число (вне зависимости от типа ввода), а значит хотим запустить автовсрытие ближайших влеток на основе меток
+        println("Revealing " + row + " " + col + " " + _dataBoard[row][col].field)
+        // Мы открыли мину
+        if (_gameBoard[row][col].field == WATER)
+            return
+
+        if (_dataBoard[row][col].field == MINE) {
+            println("Mine")
+            state = LOSS
+
+            _gameBoard[row][col].field = MINE
+            _minesPositions.remove(Pair(row, col))
 
 
-        when (clickMode) {
-            REVEALING -> {
-                println("Revealing " + row + " " + col + " " + _dataBoard[row][col].field)
-                // Мы открыли мину
-                if (_gameBoard[row][col].field == WATER)
-                    return
-
-                if (_dataBoard[row][col].field == MINE) {
-                    println("Mine")
-                    state = LOSS
-                    _gameBoard[row][col].field = MINE
-                    minesPositions.forEach {
-                        _gameBoard[it.first][it.second].field = MINE
-                    }
-                    printGameBoard()
-                    return
-                }
-
-                // Мы гарантированно попали не в мину, поэтому считаем мины вокруг
-                movesLeft--
-                val minesCount = countAdjacentObjects(_dataBoard, row, col, MINE)
-                val newField = WaterField(minesCount)
-                _gameBoard[row][col] = newField
-
-                printGameBoard()
-                // Если вокруг клетки нет мин, означает, что это нулевая клетка. А значит мы вскрываем все 8 клеток вокруг
-                if (minesCount == 0) {
-                    println("if (minesCount == 0)")
-
-
-                    revealAdjacentFields(row, col)
-                }
-            }
-            MARKING -> {
-                // Убираем метку, если стояла
-                if (_gameBoard[row][col].field == MARK) {
-                    movesLeft--
-                    _gameBoard[row][col].field = EMPTY
-                } // Ставим метку на поле
-                else {
-                    movesLeft++
-                    _gameBoard[row][col].field = MARK
-                }
-            }
+            return
         }
+
+        // Мы гарантированно попали не в мину, поэтому считаем мины вокруг
+        movesLeft--
+        val mines = countAdjacentObjects(_dataBoard, row, col, MINE)
+        val newField = WaterField(mines)
+        _gameBoard[row][col] = newField
+
+        printGameBoard()
+        // Если вокруг клетки нет мин, означает, что это нулевая клетка. А значит мы вскрываем все 8 клеток вокруг
+        if (mines == 0) {
+            println("if (mines == 0)")
+
+
+            revealAdjacentFields(row, col)
+        }
+    }
 
 
 //        Продукты
@@ -361,5 +334,4 @@ class Model {
 //        Сода - 0,5 ч.л.
 //        Корица - 1 ст.л. (по вкусу)
 //        Мука - 1,5 стакана
-    }
 }
