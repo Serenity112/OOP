@@ -1,4 +1,4 @@
-package laba2.shape
+package shapeslaba.shape
 
 import kotlin.math.*
 
