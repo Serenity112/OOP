@@ -15,7 +15,6 @@ class MazeView(private val model: MazeModel) {
     }
 
     private fun repaint() {
-       // Runtime.getRuntime().exec("clear")
         println("Maze:")
         println(model)
     }

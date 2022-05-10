@@ -4,12 +4,11 @@ import laba4.model.State.FINISHED
 
 class MazeController(private val model: MazeModel) {
 
-    fun initializeGame(file: String)
-    {
-        model.initializeMaze(file)
+    init {
+        startGame()
     }
 
-    fun startGame() {
+    private fun startGame() {
         while(model.state != FINISHED) {
             val input = readln()
 

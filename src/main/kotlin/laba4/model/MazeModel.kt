@@ -4,8 +4,6 @@ import java.io.File
 import laba4.model.State.*
 import laba4.model.Cell.*
 
-//operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>) = Pair(first + other.first, second + other.second)
-
 // We use (i, j) move logic. Means we have YoX coordinates
 enum class Move(val direction: Pair<Int, Int>) {
     UP(Pair(-1, 0)),
@@ -22,17 +20,17 @@ enum class Cell(val textValue: String) {
     EXIT("E"),
 }
 
-enum class State(val textValue: String) {
-    NO_MAZE("Maze is not initialized"),
-    FINISHED("Game finished, you won!"),
-    PROGRESS("Game in progress, keep trying!"),
+enum class State {
+    NO_MAZE,
+    FINISHED,
+    PROGRESS,
 }
 
 interface ModelChangeListener {
     fun onModelChanged()
 }
 
-class MazeModel {
+class MazeModel(fileName: String) {
     private var _maze: MutableList<MutableList<Cell>> = MutableList(0) { MutableList(0) { WALL } }
     private var rows = 0
     private var cols = 0
@@ -42,6 +40,10 @@ class MazeModel {
 
     var state: State = NO_MAZE
         private set
+
+    init {
+        initializeMaze(fileName)
+    }
 
     fun addModelChangeListener(listener: ModelChangeListener) {
         listeners.add(listener)
@@ -65,11 +67,11 @@ class MazeModel {
         currentPos = Pair(-1, -1)
     }
 
-    fun initializeMaze(fileName: String): MutableList<MutableList<Cell>> {
+    private fun initializeMaze(fileName: String): MutableList<MutableList<Cell>> {
         require(state == NO_MAZE) { "Maze already initialized" }
         state = PROGRESS
 
-        val file = File(fileName).forEachLine { it ->
+        File(fileName).forEachLine { it ->
             val mazeLine: MutableList<Cell> = mutableListOf()
 
             it.forEach {

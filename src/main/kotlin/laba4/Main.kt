@@ -5,12 +5,8 @@ import laba4.model.MazeModel
 import laba4.view.MazeView
 
 fun main() {
-    val newMaze = MazeModel()
-    val newController = MazeController(newMaze)
-
-    newController.initializeGame("maze.txt")
+    val newMaze = MazeModel("maze.txt")
 
     MazeView(newMaze)
-
-    newController.startGame()
+    MazeController(newMaze)
 }
