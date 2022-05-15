@@ -30,7 +30,7 @@ sealed class Contact {
     data class Email(val email: String) : Contact() {
         init {
             if (!(email.contains('@')) || !(email.contains('.')) || email.indexOf('@') < email.indexOf('@')) {
-                throw IllegalArgumentException("Wrong home phone format!")
+                throw IllegalArgumentException("Wrong email format!")
             }
         }
 

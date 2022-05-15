@@ -72,7 +72,7 @@ internal class TinkoffDataServiceTest {
         newData.addPerson(vanya)
         newData.addEmail(vanya, "vanya@yandex.ru")
 
-        assertTrue(newData.getPersonContacts(vanya).contains(Contact.Email("yandex")))
+        assertTrue(newData.getPersonContacts(vanya).contains(Contact.Email("vanya@yandex.ru")))
     }
 
     @Test
