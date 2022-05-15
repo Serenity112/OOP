@@ -5,12 +5,12 @@ import laba4.model.State.*
 import laba4.model.Cell.*
 
 // We use (i, j) move logic. Means we have YoX coordinates
-enum class Move(val direction: Pair<Int, Int>) {
-    UP(Pair(-1, 0)),
-    RIGHT(Pair(0, 1)),
-    DOWN(Pair(1, 0)),
-    LEFT(Pair(0, -1)),
-    STAY(Pair(0, 0)),
+enum class Move(val y: Int, val x: Int) {
+    UP(-1, 0),
+    RIGHT(0, 1),
+    DOWN(1, 0),
+    LEFT(0, -1),
+    STAY(0, 0),
 }
 
 enum class Cell(val textValue: String) {
@@ -21,7 +21,6 @@ enum class Cell(val textValue: String) {
 }
 
 enum class State {
-    NO_MAZE,
     FINISHED,
     PROGRESS,
 }
@@ -30,47 +29,17 @@ interface ModelChangeListener {
     fun onModelChanged()
 }
 
-class MazeModel(fileName: String) {
-    private var _maze: MutableList<MutableList<Cell>> = MutableList(0) { MutableList(0) { WALL } }
-    private var rows = 0
-    private var cols = 0
-    private var currentPos: Pair<Int, Int> = Pair(-1, -1)
+class Maze() {
+    var board: MutableList<MutableList<Cell>> = MutableList(0) { MutableList(0) { WALL } }
+    var playerPos: Pair<Int, Int> = Pair(-1, -1)
+    var rows = 0
+    var cols = 0
+}
 
-    private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
+fun readMazeFromFile(fileName: String): Maze {
+    val maze = Maze()
 
-    var state: State = NO_MAZE
-        private set
-
-    init {
-        initializeMaze(fileName)
-    }
-
-    fun addModelChangeListener(listener: ModelChangeListener) {
-        listeners.add(listener)
-    }
-
-    fun removeModelChangeListener(listener: ModelChangeListener) {
-        listeners.remove(listener)
-    }
-
-    private fun notifyListeners() {
-        listeners.forEach { it.onModelChanged() }
-    }
-
-    fun unInitializeMaze() {
-        require(state != NO_MAZE) { "Maze was not initialized!" }
-
-        state = NO_MAZE
-        _maze = MutableList(0) { MutableList(0) { WALL } }
-        rows = 0
-        cols = 0
-        currentPos = Pair(-1, -1)
-    }
-
-    private fun initializeMaze(fileName: String): MutableList<MutableList<Cell>> {
-        require(state == NO_MAZE) { "Maze already initialized" }
-        state = PROGRESS
-
+    maze.apply {
         File(fileName).forEachLine { it ->
             val mazeLine: MutableList<Cell> = mutableListOf()
 
@@ -84,53 +53,74 @@ class MazeModel(fileName: String) {
                 }
 
                 if (currentCell == PLAYER)
-                    currentPos = Pair(_maze.size, mazeLine.size)
+                    playerPos = Pair(board.size, mazeLine.size)
 
                 mazeLine.add(mazeLine.size, currentCell)
             }
-            _maze.add(_maze.size, mazeLine)
+            board.add(board.size, mazeLine)
         }
-        rows = _maze[0].size
-        cols = _maze.size
-
-        require(currentPos != Pair(-1, -1)) { "No player found!" }
-
-        return _maze
     }
 
-    fun doMove(inputMove: String) {
-        require(state != NO_MAZE) { "Maze is not initialized" }
+    // Board size validation
+    val tempCols = maze.board[0].size
+    require(maze.board.all { it.size == tempCols }) { "Different rows size! Maze needs to be a rectangle." }
+
+    maze.rows = maze.board.size
+    maze.cols = maze.board[0].size
+
+    // Player validation
+    require(maze.playerPos != Pair(-1, -1)) { "No player found!" }
+
+    return maze
+}
+
+class MazeModel(_maze: Maze) {
+    var board: MutableList<MutableList<Cell>> = _maze.board
+    private var rows = _maze.rows
+    private var cols = _maze.cols
+    private var playerPos = _maze.playerPos
+
+    private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
+
+    var state: State = PROGRESS
+        private set
+
+    fun addModelChangeListener(listener: ModelChangeListener) {
+        listeners.add(listener)
+    }
+
+    fun removeModelChangeListener(listener: ModelChangeListener) {
+        listeners.remove(listener)
+    }
+
+    private fun notifyListeners() {
+        listeners.forEach { it.onModelChanged() }
+    }
+
+    fun doMove(move: Move) {
         require(state != FINISHED) { "Maze was completed! Play new game please :(" }
 
-        val move = when (inputMove) {
-            "W" -> Move.UP
-            "A" -> Move.LEFT
-            "S" -> Move.DOWN
-            "D" -> Move.RIGHT
-            else -> Move.STAY
-        }
-
-        val newPosI = currentPos.first + move.direction.first
-        val newPosJ = currentPos.second + move.direction.second
+        val newPosI = playerPos.first + move.y
+        val newPosJ = playerPos.second + move.x
 
         require(newPosI in 0..rows && newPosJ in 0..cols) { "Move was out of maze!" }
 
-        require(_maze[newPosI][newPosJ] != WALL) { "Move in wall!" }
+        require(board[newPosI][newPosJ] != WALL) { "Move in wall!" }
 
-        if (_maze[newPosI][newPosJ] == EXIT)
+        if (board[newPosI][newPosJ] == EXIT)
             state = FINISHED
 
-        _maze[currentPos.first][currentPos.second] = TRACE
-        _maze[newPosI][newPosJ] = PLAYER
+        board[playerPos.first][playerPos.second] = TRACE
+        board[newPosI][newPosJ] = PLAYER
 
-        currentPos = Pair(newPosI, newPosJ)
+        playerPos = Pair(newPosI, newPosJ)
 
         notifyListeners()
     }
 
     override fun toString(): String {
-        return if (_maze.size != 0) buildString {
-            _maze.forEach { it ->
+        return if (board.size != 0) buildString {
+            board.forEach { it ->
                 it.forEach {
                     append(it.textValue)
                 }

@@ -1,5 +1,6 @@
 package laba4.controller
 import laba4.model.MazeModel
+import laba4.model.Move
 import laba4.model.State.FINISHED
 
 class MazeController(private val model: MazeModel) {
@@ -10,16 +11,21 @@ class MazeController(private val model: MazeModel) {
 
     private fun startGame() {
         while(model.state != FINISHED) {
-            val input = readln()
+
+            val move = when (readln()) {
+                "W" -> Move.UP
+                "A" -> Move.LEFT
+                "S" -> Move.DOWN
+                "D" -> Move.RIGHT
+                else -> Move.STAY
+            }
 
             try {
-                model.doMove(input)
+                model.doMove(move)
             } catch (e: Exception) {
                 println(e.message)
             }
         }
-
-        model.unInitializeMaze()
 
         println("Game finished :)))))")
     }
