@@ -8,6 +8,7 @@ import javax.swing.*
 import kotlin.math.abs
 
 import courseWork.GameTextures
+import courseWork.gamemenu.view.MineSweeperBoard
 import courseWork.mainmenu.model.*
 import java.awt.Image
 
@@ -23,7 +24,7 @@ private const val MIN_COLS = 1
 private const val MAX_MINES = 99
 private const val MIN_MINES = 1
 
-class MainMenuPanel() : JFrame("Mineswepper.") {
+class MainMenuPanel(var game: MineSweeperBoard) : JFrame("Minesweeper.") {
     data class Difficulty(val diffname: String, val rows: Int, val cols: Int, val mines: Int)
 
     private val difficultyPreset = arrayOf(
@@ -50,13 +51,25 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
     private val textures = GameTextures.textures
 
     init {
+
+    }
+
+    public fun initialize() {
         setSize(GAME_WIDTH, GAME_HEIGHT)
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+
         rootPane.contentPane = createStartingMenu()
 
-        // Set easy difficulty
         updateDifficulty(0)
         updateLabels()
+        // Set easy difficulty
+
+    }
+
+     fun startGame() {
+        game = MineSweeperBoard(rows, cols, mines)
+        game.initialize()
+        game.isVisible = true
     }
 
     private fun createStartButton(): JButton {
@@ -64,6 +77,9 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
             addActionListener {
                 // FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 //val game = MineSweeperBoard(rows, cols, mines)
+                //game.isVisible = true
+                startGame()
+                println("Start!")
             }
             preferredSize = Dimension(200, 200)
             maximumSize = Dimension(200, 200)
@@ -123,7 +139,7 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
                 icon = ImageIcon(textures.arrowLeft.getScaledInstance(50, 50, Image.SCALE_SMOOTH))
                 addActionListener {
                     difficulty--
-                    updateDifficulty(abs(difficulty % 3))
+                    updateDifficulty(difficulty)
                     updateLabels()
                 }
             }
@@ -132,7 +148,7 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
                 icon = ImageIcon(textures.arrowRight.getScaledInstance(50, 50, Image.SCALE_SMOOTH))
                 addActionListener {
                     difficulty++
-                    updateDifficulty(abs(difficulty % 3))
+                    updateDifficulty(difficulty)
                     updateLabels()
                 }
             }
@@ -356,6 +372,8 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
         bottomPanel.add(JLabel(ImageIcon(textures.bottomLeft.getScaledInstance(200, 300, Image.SCALE_SMOOTH))), BorderLayout.WEST)
         bottomPanel.add(JLabel(ImageIcon(textures.bottomRight.getScaledInstance(200, 300, Image.SCALE_SMOOTH))), BorderLayout.EAST)
 
+
+
         return mainPanel
     }
 
@@ -365,11 +383,12 @@ class MainMenuPanel() : JFrame("Mineswepper.") {
     }
 
     private fun updateDifficulty(diff: Int) {
-        this.difficulty = diff
-        difficultyLabel.text = difficultyPreset[abs(diff % 3)].diffname
-        this.rows = difficultyPreset[diff].rows
-        this.cols = difficultyPreset[diff].cols
-        this.mines = difficultyPreset[diff].mines
+        //println(difficulty)
+        val moddif = abs(diff) % 3
+        difficultyLabel.text = difficultyPreset[moddif].diffname
+        this.rows = difficultyPreset[moddif].rows
+        this.cols = difficultyPreset[moddif].cols
+        this.mines = difficultyPreset[moddif].mines
 
 
     }

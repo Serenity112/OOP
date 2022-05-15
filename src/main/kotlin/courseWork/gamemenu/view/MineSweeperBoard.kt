@@ -5,9 +5,6 @@ import courseWork.gamemenu.model.*
 import courseWork.gamemenu.view.MineSweeperBoard.Colors.*
 import java.awt.*
 import javax.swing.*
-import javax.swing.border.CompoundBorder
-import javax.swing.border.EmptyBorder
-import javax.swing.border.EtchedBorder
 
 
 private const val GAME_WIDTH = 700
@@ -52,6 +49,9 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
     var panelHeight = 0
 
     init {
+    }
+
+    fun initialize() {
         setSize(GAME_WIDTH, GAME_HEIGHT)
         defaultCloseOperation = EXIT_ON_CLOSE
 
@@ -76,9 +76,45 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
         FieldIcons.Cross.img =
             ImageIcon(GameTextures.textures.crossTex.getScaledInstance(cellSize, cellSize, Image.SCALE_SMOOTH))
 
+
+        //rootPane.contentPane = testPanel()
+
         rootPane.contentPane = createMainPanel()
 
         resubscribe()
+    }
+
+    private fun testPanel() :JPanel {
+        val panel = JPanel()
+        panel.layout = FlowLayout()
+
+
+
+
+        val button = JButton(FieldIcons.Field.img).apply {
+            layout = FlowLayout()
+            minimumSize = Dimension(200, 200)
+            maximumSize =  Dimension(200, 200)
+            preferredSize = Dimension(200, 200)
+            //icon =
+
+
+            val label = JLabel().apply {
+                icon =FieldIcons.Cross.img
+                setBounds(0, 0 , 100, 100)
+                // text = "F"
+                //minimumSize = Dimension(200, 200)
+                //maximumSize =  Dimension(200, 200)
+                //preferredSize = Dimension(200, 200)
+            }
+
+            add(label)
+        }
+
+        panel.add(button)
+
+
+        return panel
     }
 
     override fun onModelChanged() {
@@ -192,6 +228,8 @@ class MineSweeperBoard(private val rows: Int, private val cols: Int, private val
                         button.icon = FieldIcons.Field.img
                         val label = (button.getComponent(0) as JLabel).apply {
                            // icon = FieldIcons.Cross.img
+                            icon = null
+                            text = null
                         }
                     }
                     FieldData.MARK -> {

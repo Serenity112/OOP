@@ -2,15 +2,14 @@ package courseWork
 
 import courseWork.gamemenu.view.MineSweeperBoard
 import courseWork.mainmenu.view.MainMenuPanel
+import javax.swing.*
 
 fun main() {
-    //val model = Model()
 
-    //val controller = Controller(model)
+    val game = MineSweeperBoard(1, 1, 1)
+    val mainMenu = MainMenuPanel(game)
 
-   // controller.startGame()
+    mainMenu.isVisible = true
+    mainMenu.initialize()
 
-    //val mineSweeper = MainMenuPanel()
-    val mineSweeper = MineSweeperBoard(11, 9, 16)
-    mineSweeper.isVisible = true
 }
