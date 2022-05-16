@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.*
 internal class ShapeCollectorTest {
     @Test
     fun addShape() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         assertTrue(shapeCollector.getShapesList().isEmpty())
 
@@ -19,7 +19,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun findMinimumArea() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.RED, Color.GREEN))
         shapeCollector.addShape(Circle(5.5, Color.RED, Color.GREEN))
@@ -42,7 +42,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun findMaximumArea() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.RED, Color.GREEN))
         shapeCollector.addShape(Circle(5.5, Color.RED, Color.GREEN))
@@ -65,7 +65,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun findSummaryArea() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Square(10.0, Color.RED, Color.GREEN))
         shapeCollector.addShape(Square(3.0, Color.RED, Color.BLUE))
@@ -76,7 +76,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun findFiguresByBorderColor() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.RED, Color.WHITE))
         shapeCollector.addShape(Circle(5.5, Color.RED, Color.GREEN))
@@ -99,7 +99,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun findFiguresByFillColor() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.RED, Color.WHITE))
         shapeCollector.addShape(Circle(5.5, Color.RED, Color.GREEN))
@@ -123,7 +123,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun sortShapesByBorderColor() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.WHITE, Color.WHITE))
         shapeCollector.addShape(Circle(5.5, Color.WHITE, Color.GREEN))
@@ -148,7 +148,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun sortShapesByFillColor() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector =ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.WHITE, Color.WHITE))
         shapeCollector.addShape(Circle(5.5, Color.WHITE, Color.GREEN))
@@ -173,7 +173,7 @@ internal class ShapeCollectorTest {
 
     @Test
     fun getShapesByType() {
-        val shapeCollector = ShapeCollector()
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
 
         shapeCollector.addShape(Circle(5.0, Color.WHITE, Color.WHITE))
         shapeCollector.addShape(Circle(5.5, Color.WHITE, Color.GREEN))
@@ -196,8 +196,47 @@ internal class ShapeCollectorTest {
             Triangle(3.0, 4.0, 5.0, Color.RED, Color.GREEN)
         )
 
-        assertEquals(actualCirclesList,foundCirclesList)
+        assertEquals(actualCirclesList, foundCirclesList)
         assertEquals(actualRectanglesList, foundRectanglesList)
         assertEquals(actualTrianglesList, foundTrianglesList)
+    }
+
+    @Test
+    fun addCollection() {
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
+        val circleCollection = mutableListOf(
+            Circle(5.0, Color.RED, Color.GREEN),
+            Circle(5.5, Color.RED, Color.GREEN),
+        )
+        shapeCollector.addCollection((circleCollection))
+
+        val actualShapesList = listOf(
+            Circle(5.0, Color.RED, Color.GREEN),
+            Circle(5.5, Color.RED, Color.GREEN),
+        )
+
+        assertEquals(actualShapesList, shapeCollector.getShapesList())
+    }
+
+    @Test
+    fun getSorted() {
+        val shapeCollector = ShapeCollector<ColoredShape2d>()
+
+        // Areas: 4, 9, 6
+        val shapesCollection = mutableListOf(
+            Square(2.0, Color.RED, Color.GREEN),
+            Square(3.0, Color.RED, Color.GREEN),
+            Triangle(3.0, 4.0, 5.0, Color.RED, Color.GREEN),
+        )
+        shapeCollector.addCollection((shapesCollection))
+
+        val actualShapesList = listOf(
+            Square(2.0, Color.RED, Color.GREEN),
+            Triangle(3.0, 4.0, 5.0, Color.RED, Color.GREEN),
+            Square(3.0, Color.RED, Color.GREEN),
+        )
+
+        val maxAreaComparator = ShapeCollector.AreaComparator
+        assertEquals(actualShapesList, shapeCollector.getSorted(maxAreaComparator))
     }
 }

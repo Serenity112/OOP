@@ -1,23 +1,44 @@
 package laba2.shape
 
-class ShapeCollector {
-    private val shapesList = mutableListOf<ColoredShape2d>()
+class ShapeCollector<T : ColoredShape2d>(
+    private val shapesList: MutableList<T> = mutableListOf()
+) {
 
-    fun getShapesList(): List<ColoredShape2d> {
+    // Took from this:
+    // https://www.bezkoder.com/kotlin-comparator-example/
+    class AreaComparator {
+        companion object : Comparator<ColoredShape2d> {
+            override fun compare(a: ColoredShape2d, b: ColoredShape2d): Int = when {
+                a.calcArea() > b.calcArea() -> 1
+                a.calcArea() < b.calcArea() -> -1
+                else -> 0
+            }
+        }
+    }
+
+    fun addCollection(collection: Collection<T>) {
+        shapesList.addAll(collection)
+    }
+
+    fun getSorted(comparator: Comparator<in T>): List<T> {
+        return shapesList.sortedWith(comparator).toMutableList()
+    }
+
+    fun getShapesList(): List<T> {
         return shapesList
     }
 
-    fun addShape(shape: ColoredShape2d) {
+    fun addShape(shape: T) {
         shapesList.add(shape)
     }
 
-    fun findMinimumArea(): List<ColoredShape2d> {
+    fun findMinimumArea(): List<T> {
         val minimumArea = shapesList.minOfOrNull { it.calcArea() }
 
         return shapesList.filter { it.calcArea() == minimumArea }
     }
 
-    fun findMaximumArea(): List<ColoredShape2d> {
+    fun findMaximumArea(): List<T> {
         val maximumArea = shapesList.maxOfOrNull { it.calcArea() }
 
         return shapesList.filter { it.calcArea() == maximumArea }
@@ -25,33 +46,30 @@ class ShapeCollector {
 
     fun findSummaryArea(): Double {
         var sum = 0.0
-
         shapesList.forEach {
             sum += it.calcArea()
         }
-
         return sum
     }
 
-    fun findShapesByBorderColor(color: Color): List<ColoredShape2d> {
+    fun findShapesByBorderColor(color: Color): List<T> {
         return shapesList.filter { it.borderColor == color }
     }
 
-    fun findShapesByFillColor(color: Color): List<ColoredShape2d> {
+    fun findShapesByFillColor(color: Color): List<T> {
         return shapesList.filter { it.fillColor == color }
     }
 
     // Source: https://stackoverflow.com/questions/68526191/how-to-group-and-merge-list-in-kotlin
-    fun sortShapesByBorderColor(): Map<Color, List<ColoredShape2d>> {
+    fun sortShapesByBorderColor(): Map<Color, List<T>> {
         return shapesList.groupBy { it.borderColor }
     }
 
-    fun sortShapesByFillColor(): Map<Color, List<ColoredShape2d>> {
+    fun sortShapesByFillColor(): Map<Color, List<T>> {
         return shapesList.groupBy { it.fillColor }
     }
 
-    // Source: https://stackoverflow.com/questions/13154463/how-can-i-check-for-generic-type-in-kotlin
-    inline fun <reified T> getShapesByType(): List<ColoredShape2d> {
-        return getShapesList().filter { it is T }
+    inline fun <reified T : ColoredShape2d> getShapesByType(): List<T> {
+        return this.getShapesList().filterIsInstance<T>()
     }
 }
