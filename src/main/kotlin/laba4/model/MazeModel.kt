@@ -31,14 +31,12 @@ interface ModelChangeListener {
 data class MazeInitializer(
     val board: List<List<Cell>>,
     val playerPos: Pair<Int, Int>,
-    val rows: Int,
-    val cols: Int,
 )
 
 
 class MazeModel(_maze: MazeInitializer) {
-    private var rows = _maze.rows
-    private var cols = _maze.cols
+    private var rows = _maze.board.size
+    private var cols = _maze.board[0].size
     private var playerPos = _maze.playerPos
     private val board = MutableList(rows) { i -> MutableList(cols) { j -> _maze.board[i][j] } }
 
