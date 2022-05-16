@@ -1,35 +1,24 @@
-package shapeslaba
+package laba2
 
-import shapeslaba.shape.*
+import laba2.shape.*
 
 fun main() {
-    val shapeCollector = ShapeCollector<ColoredShape2d>()
+    // Warning "Parameter 'rgbColor' is never used" can be ignored. We don't really need exact RGBA params of colors and only use their ENUMs
+    // But theoretically we will need information of particular RGBA data, if we expand our program
 
-    val circleCollection = mutableListOf(
-        Circle(5.0, Color.RED, Color.GREEN),
-        Circle(5.5, Color.RED, Color.GREEN),
-    )
-    shapeCollector.addCollection((circleCollection))
+    val shapeCollector = ShapeCollector()
 
-    val squareCollection = mutableListOf(
-        Square(10.0, Color.RED, Color.GREEN),
-        Square(3.0, Color.RED, Color.BLUE),
-    )
-    shapeCollector.addCollection((squareCollection))
+    shapeCollector.addShape(Circle(5.0, Color.RED, Color.GREEN))
+    shapeCollector.addShape(Circle(5.5, Color.RED, Color.GREEN))
 
-    val rectangleCollection = mutableListOf(
-        Rectangle(2.0, 3.0, Color.RED, Color.GREEN),
-        Rectangle(5.0, 10.0, Color.WHITE, Color.BLACK),
-        Rectangle(4.0, 25.0, Color.WHITE, Color.GREEN),
-    )
-    shapeCollector.addCollection(rectangleCollection)
+    shapeCollector.addShape(Square(10.0, Color.RED, Color.GREEN))
+    shapeCollector.addShape(Square(3.0, Color.RED, Color.BLUE))
 
-    val triangleCollection = mutableListOf(
-        Triangle(3.0, 4.0, 5.0, Color.RED, Color.GREEN),
-    )
-    shapeCollector.addCollection(triangleCollection)
+    shapeCollector.addShape(Rectangle(2.0, 3.0, Color.RED, Color.GREEN))
+    shapeCollector.addShape(Rectangle(5.0, 10.0, Color.WHITE, Color.BLACK))
+    shapeCollector.addShape(Rectangle(4.0, 25.0, Color.WHITE, Color.GREEN))
 
-
+    shapeCollector.addShape(Triangle(3.0, 4.0, 5.0, Color.RED, Color.GREEN))
 
     try {
         shapeCollector.addShape(Square(-333.0, Color.RED, Color.BLUE))
@@ -70,15 +59,6 @@ fun main() {
         println("$key = $value")
     }
 
-    println("\nAll circles:")
-    println(shapeCollector.getShapesByType<Circle>())
-
-    val maxAreaComparator = ShapeCollector.AreaComparator
-
-    val minAreaComparator = maxAreaComparator.reversed()
-
-    println("\nSorted shapes:")
-    shapeCollector.getSorted(minAreaComparator)
-        .forEach { println("Area: ${it.calcArea()}:" + "\n$it") }
-
+    println("\nAll squares:")
+    println(shapeCollector.getShapesByType<Square>())
 }
