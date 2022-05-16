@@ -1,6 +1,5 @@
 package laba4.model
 
-import java.io.File
 import laba4.model.State.*
 import laba4.model.Cell.*
 
@@ -29,56 +28,20 @@ interface ModelChangeListener {
     fun onModelChanged()
 }
 
-class Maze() {
-    var board: MutableList<MutableList<Cell>> = MutableList(0) { MutableList(0) { WALL } }
-    var playerPos: Pair<Int, Int> = Pair(-1, -1)
-    var rows = 0
-    var cols = 0
-}
+data class MazeInitializer(
+    val board: List<List<Cell>>,
+    val playerPos: Pair<Int, Int>,
+    val rows: Int,
+    val cols: Int,
+)
 
-fun readMazeFromFile(fileName: String): Maze {
-    val maze = Maze()
 
-    maze.apply {
-        File(fileName).forEachLine { it ->
-            val mazeLine: MutableList<Cell> = mutableListOf()
-
-            it.forEach {
-                val currentCell = when (it) {
-                    '#' -> WALL
-                    '-' -> TRACE
-                    'P' -> PLAYER
-                    'E' -> EXIT
-                    else -> WALL
-                }
-
-                if (currentCell == PLAYER)
-                    playerPos = Pair(board.size, mazeLine.size)
-
-                mazeLine.add(mazeLine.size, currentCell)
-            }
-            board.add(board.size, mazeLine)
-        }
-    }
-
-    // Board size validation
-    val tempCols = maze.board[0].size
-    require(maze.board.all { it.size == tempCols }) { "Different rows size! Maze needs to be a rectangle." }
-
-    maze.rows = maze.board.size
-    maze.cols = maze.board[0].size
-
-    // Player validation
-    require(maze.playerPos != Pair(-1, -1)) { "No player found!" }
-
-    return maze
-}
-
-class MazeModel(_maze: Maze) {
-    var board: MutableList<MutableList<Cell>> = _maze.board
+class MazeModel(_maze: MazeInitializer) {
     private var rows = _maze.rows
     private var cols = _maze.cols
     private var playerPos = _maze.playerPos
+    private val board = MutableList(rows) { i -> MutableList(cols) { j -> _maze.board[i][j] } }
+
 
     private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
 
