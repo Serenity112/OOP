@@ -32,6 +32,6 @@ object FileProcessingUtil {
         // Player validation
         require(playerPos != Pair(-1, -1)) { "No player found!" }
 
-        return MazeInitializer(board, playerPos)
+        return MazeInitializer(board, playerPos, board.size, board[0].size)
     }
 }
