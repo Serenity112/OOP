@@ -1,15 +1,9 @@
 package courseWork
 
-import courseWork.gamemenu.view.MineSweeperBoard
-import courseWork.mainmenu.view.MainMenuPanel
-import javax.swing.*
+import courseWork.gamemanager.GameManager
 
 fun main() {
-
-    val game = MineSweeperBoard(1, 1, 1)
-    val mainMenu = MainMenuPanel(game)
-
-    mainMenu.isVisible = true
-    mainMenu.initialize()
-
+    val newGame = GameManager()
+    newGame.startGame()
 }
+

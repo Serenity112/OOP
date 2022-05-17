@@ -18,7 +18,7 @@ object GameTextures {
         val bottomLeft: Image,
         val bottomRight: Image,
         val goButton: Image,
-        val settingsButton: Image,
+        val backButton: Image,
     )
 
     private fun loadTextures(): Textures {
@@ -38,7 +38,7 @@ object GameTextures {
             ImageIO.read(javaClass.getResource("/images/bottomright.png")),
 
             ImageIO.read(javaClass.getResource("/images/gobutton.png")),
-            ImageIO.read(javaClass.getResource("/images/button.png")), // 250:50
+            ImageIO.read(javaClass.getResource("/images/backbutton.png")),
         )
     }
 
