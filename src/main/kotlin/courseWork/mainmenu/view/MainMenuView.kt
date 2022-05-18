@@ -21,7 +21,7 @@ private const val MIN_ROWS = 1
 private const val MAX_COLS = 99
 private const val MIN_COLS = 1
 
-private const val MAX_MINES = 150
+private const val MAX_MINES = 1000
 private const val MIN_MINES = 1
 
 class MainMenuPanel(private val manager: GameManager) : JFrame("Minesweeper.") {

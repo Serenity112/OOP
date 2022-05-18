@@ -23,6 +23,7 @@ class MineSweeperBoard(private val manager: GameManager) : JFrame("Minesweeper."
     private val mines = manager.gameDifficulty.mines
 
     private var gameModel = Model(rows, cols, mines)
+    private var bufferBoard = MutableList(rows) { MutableList(cols) { Field(FieldData.WATER) } }
 
     private val buttons = mutableListOf<MutableList<JButton>>()
     private val textures = GameTextures.textures
@@ -202,12 +203,6 @@ class MineSweeperBoard(private val manager: GameManager) : JFrame("Minesweeper."
             foreground = Color(BLACK.hex)
             background = Color(LIGHT_GREY.hex)
 
-            horizontalTextPosition = JLabel.CENTER
-            verticalTextPosition = JLabel.CENTER
-
-            alignmentX = CENTER_ALIGNMENT
-            alignmentY = CENTER_ALIGNMENT
-
             preferredSize = Dimension(75, 75)
             minimumSize = Dimension(75, 75)
             maximumSize = Dimension(75, 75)
@@ -217,10 +212,7 @@ class MineSweeperBoard(private val manager: GameManager) : JFrame("Minesweeper."
     }
 
     private fun updateMinesLabel() {
-        if(gameModel.minesLeft >= 0) {
-            minesLabel.text = gameModel.minesLeft.toString()
-        }
-
+        minesLabel.text = gameModel.minesLeft.toString()
     }
 
     private fun createFinishedPanel(modelState: ModelState) {
@@ -254,42 +246,49 @@ class MineSweeperBoard(private val manager: GameManager) : JFrame("Minesweeper."
             for ((j, button) in buttonRow.withIndex()) {
                 val cell = gameModel.gameBoard[i][j]
 
-                when (cell.field) {
-                    FieldData.MINE -> {
-                        button.apply {
-                            // Removing text in vase of "Replace mine" proc
-                            text = ""
-                            background = Color(RED.hex)
-                            icon = fieldIcons[Fields.Mine]
-                        }
-                    }
-
-                    FieldData.FIELD -> {
-                        button.apply {
-                            icon = fieldIcons[Fields.Field]
+                if (cell != bufferBoard[i][j]) {
+                    when (cell.field) {
+                        FieldData.MINE -> {
+                            button.apply {
+                                // Removing text in case of "Replace mine" proc
+                                text = ""
+                                background = Color(RED.hex)
+                                icon = fieldIcons[Fields.Mine]
+                            }
                         }
 
-                    }
-                    FieldData.MARK -> {
-                        button.apply {
-                            icon = fieldIcons[Fields.Mark]
-                        }
-                    }
-                    FieldData.WATER -> {
-                        val water: WaterField = cell as WaterField
-
-                        if (water.depth == 0) {
-                            button.icon = fieldIcons[Fields.Water]
-                        } else {
+                        FieldData.FIELD -> {
                             button.apply {
                                 icon = fieldIcons[Fields.Field]
-                                text = water.depth.toString()
-                                foreground = depthColors[water.depth]?.let { Color(it.hex) }
+                            }
+
+                        }
+                        FieldData.MARK -> {
+                            button.apply {
+                                icon = fieldIcons[Fields.Mark]
+                            }
+                        }
+                        FieldData.WATER -> {
+                            val water: WaterField = cell as WaterField
+
+                            if (water.depth == 0) {
+                                button.icon = fieldIcons[Fields.Water]
+                            } else {
+                                button.apply {
+                                    icon = fieldIcons[Fields.Field]
+                                    text = water.depth.toString()
+                                    foreground = depthColors[water.depth]?.let { Color(it.hex) }
+                                }
                             }
                         }
                     }
-                }
 
+                    if (cell.field == FieldData.WATER) {
+                        bufferBoard[i][j] = WaterField((cell as WaterField).depth)
+                    } else {
+                        bufferBoard[i][j] = Field(cell.field)
+                    }
+                }
             }
         }
 
