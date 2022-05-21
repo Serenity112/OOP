@@ -2,6 +2,7 @@ package courseWork
 
 import java.awt.Image
 import javax.imageio.ImageIO
+import javax.swing.ImageIcon
 
 object GameTextures {
     class Textures(
@@ -24,21 +25,21 @@ object GameTextures {
     private fun loadTextures(): Textures {
         return Textures(
 
-            ImageIO.read(javaClass.getResource("/images/mine.png")),
-            ImageIO.read(javaClass.getResource("/images/field.png")),
-            ImageIO.read(javaClass.getResource("/images/flag.png")),
-            ImageIO.read(javaClass.getResource("/images/water.png")),
-            ImageIO.read(javaClass.getResource("/images/cross.png")),
+            ImageIcon("src/main/resources/images/mine.png").image,
+            ImageIcon("src/main/resources/images/field.png").image,
+            ImageIcon("src/main/resources/images/flag.png").image,
+            ImageIcon("src/main/resources/images/water.png").image,
+            ImageIcon("src/main/resources/images/cross.png").image,
 
-            ImageIO.read(javaClass.getResource("/images/restart.png")),
-            ImageIO.read(javaClass.getResource("/images/logo.png")),
-            ImageIO.read(javaClass.getResource("/images/arrowleft.png")),
-            ImageIO.read(javaClass.getResource("/images/arrowright.png")),
-            ImageIO.read(javaClass.getResource("/images/bottomleft.png")),
-            ImageIO.read(javaClass.getResource("/images/bottomright.png")),
+            ImageIcon("src/main/resources/images/restart.png").image,
+            ImageIcon("src/main/resources/images/logo.png").image,
+            ImageIcon("src/main/resources/images/arrowleft.png").image,
+            ImageIcon("src/main/resources/images/arrowright.png").image,
+            ImageIcon("src/main/resources/images/bottomleft.png").image,
+            ImageIcon("src/main/resources/images/bottomright.png").image,
 
-            ImageIO.read(javaClass.getResource("/images/gobutton.png")),
-            ImageIO.read(javaClass.getResource("/images/backbutton.png")),
+            ImageIcon("src/main/resources/images/gobutton.png").image,
+            ImageIcon("src/main/resources/images/backbutton.png").image,
         )
     }
 

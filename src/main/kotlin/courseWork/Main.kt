@@ -6,4 +6,3 @@ fun main() {
     val newGame = GameManager()
     newGame.startGame()
 }
-

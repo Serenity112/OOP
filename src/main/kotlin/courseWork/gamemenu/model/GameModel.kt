@@ -89,7 +89,6 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
 
         state = INGAME
 
-        // placeMines("mines.txt")
         placeMines()
     }
 
@@ -295,13 +294,4 @@ class Model(private val rows: Int, private val cols: Int, private val mines: Int
             revealAdjacentFields(row, col)
         }
     }
-
-
-//        Продукты
-//        Яйца - 2 шт.
-//        Сахар - 130 г
-//                Мед - 2 ст.л.
-//        Сода - 0,5 ч.л.
-//        Корица - 1 ст.л. (по вкусу)
-//        Мука - 1,5 стакана
 }
